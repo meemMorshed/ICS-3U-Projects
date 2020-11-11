@@ -36,7 +36,7 @@ def formula(a, b, c):
 
 def display_result(root1, root2):
 
-    """This funtion takes the two roots, rounds them to two decimal places, and
+    """This function takes the two roots, rounds them to two decimal places, and
     displays it."""
 
     # This will round roots if they are complex numbers
