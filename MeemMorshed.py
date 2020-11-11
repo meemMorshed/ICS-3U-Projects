@@ -1,0 +1,189 @@
+"""Author: Meem Morshed
+
+    Date: November. 1, 2020
+
+    Description: This program is simple one-player,
+    grid-based game where the user must find 3 hidden
+    treasures with at most 10 guesses to win.
+"""
+
+import random
+
+def main():
+    """This function defines the main program logic."""
+
+    # Keeps treasure hidden during game
+    conceal_treasure = True
+
+    guesses = 10
+    treasures = 0
+
+    print("WELCOME TO TREASURE HUNT!\n")
+
+    board = [[" ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " "],
+            [" ", " ", " ", " ", " "]]
+
+    hide_treasure(board)
+
+    display_board(board, conceal_treasure=conceal_treasure)
+
+    while guesses > 0:
+        print("You have", str(guesses), "guesses left and have found", str(treasures) + "/3 treasures.\n")
+
+        check_guesses = make_user_move(board)
+        check_treasures = check_guesses
+
+        if check_guesses == 'invalid':
+            guesses = guesses
+
+        if check_treasures == "treasure hit":
+            treasures += 1
+            guesses -= 1
+        if check_treasures == "miss":
+            guesses -= 1
+        if treasures == 3:
+            break
+
+        display_board(board, conceal_treasure=True)
+    if treasures != 3:
+        conceal_treasure = True
+        display_board(board, conceal_treasure)
+        print("You only found", str(treasures) + "/3 treasures.\n")
+        print("*** GAME OVER ***")
+    else:
+        display_board(board, conceal_treasure)
+        print("CONGRATULATIONS! You found ALL of the hidden treasures.\n")
+        print("*** GAME OVER ***")
+
+def hide_treasure(board):
+    """This function takes board as a parameter and randomly
+    places three hidden treasures onto in."""
+
+    count = 0
+
+    while count < 3:
+        row = random.randint(0, 4)
+        col = random.randint(0, 4)
+        if (board[row][col] == " "):
+            board[row][col] = "T"
+            count += 1
+
+def display_board(board, conceal_treasure):
+    """This function accepts the board as a parameter and
+    displays it as a neatly formatted grid with column
+    numbers from 0 to 4 at the top, and row numbers from
+    0 to 4 on the left. If the conceal_treasure parameter
+    is True then the locations of the treasures “T” are
+    displayed. If False, keeps the treasure hidden."""
+
+    print("   0   1   2   3   4")
+    for i in range(5):
+        line = str(i) + ': ' + " | ".join(board[i])
+        if not conceal_treasure:
+            line = line.replace("T", " ")
+        print(line)
+        print("  ---+---+---+---+---")
+    print()
+
+    return board
+
+def make_user_move(board):
+    """This function takes the user input using input validation
+    and decides what symbol to show on the board."""
+
+    flag = ""
+    flag2 = ""
+    flag3 = ""
+
+    try:
+        # Checks if input is an integer
+        row = int(input("Search a row: "))
+        col = int(input("Search a col: "))
+
+        # Checks if input is between 0 and 4 inclusive
+        if (0 <= row <= 4) and (0 <= col <= 4) and (board[row][col] == "T"):
+            board[row][col] = '$'
+            print("\nYou hit TREASURE!\n")
+            flag2 = "treasure hit"
+            return flag2
+
+        # Checks if there are any treasure within one cell of user move
+        try:
+            if row != 0 and col != 0 and board[row-1][col-1] == "T" or row != 0 and board[row-1][col] == "T":
+                board[row][col] = '!'
+                flag3 = "miss"
+                return flag3
+
+        except IndexError:
+            pass
+
+        try:
+            if row != 0 and board[row-1][col+1] == "T":
+                board[row][col] = '!'
+                flag3 = "miss"
+                return flag3
+
+        except IndexError:
+            pass
+        try:
+            if col != 0 and board[row][col-1] == "T":
+                board[row][col] = '!'
+                flag3 = "miss"
+                return flag3
+
+        except IndexError:
+            pass
+
+        try:
+            if board[row][col+1] == "T":
+                board[row][col] = '!'
+                flag3 = "miss"
+                return flag3
+
+        except IndexError:
+            pass
+
+        try:
+            if col != 0 and board[row+1][col-1] == "T":
+                board[row][col] = '!'
+                flag3 = "miss"
+                return flag3
+        except IndexError:
+            pass
+
+        try:
+            if board[row+1][col] == "T" or board[row+1][col+1] == "T":
+                board[row][col] = '!'
+                flag3 = "miss"
+                return flag3
+
+        except IndexError:
+            pass
+
+        # Marks the user move on the board with an 'X'
+        if (0 <= row <= 4) and (0 <= col <= 4) and (board[row][col] == " "):
+            board[row][col] = 'X'
+            print("\nYou missed!\n")
+            flag3 = "miss"
+            return flag3
+
+        # Marks the user move on the board with a 'T'
+        elif (0 <= row <= 4) and (0 <= col <= 4) and (board[row][col] == "T"):
+            board[row][col] = '$'
+            print("\nYou hit TREASURE!\n")
+            flag2 = "treasure hit"
+            return flag2
+
+        else:
+            print("\nSorry, invalid square. Please try again!")
+            flag = "invalid"
+            return flag
+
+    except ValueError:
+        print("Enter an integer")
+        flag = "invalid"
+        return flag
+main()
